@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Bu'aa Qormaata Barattootaa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+    
+    <nav class="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-50 flex justify-between items-center">
+        <h1 id="portalNavTitle" class="text-lg font-bold text-emerald-400"><i class="fa-solid fa-graduation-cap mr-2"></i>Portal Bu'aa Qormaata Barattootaa (Student Result Portal)</h1>
+        <div>
+            <select id="portal_ui_lang" onchange="changePortalLanguage()" class="bg-gray-700 text-xs text-white p-1.5 rounded border border-gray-600">
+                <option value="bilingual">Bilingual (Oromoo / English)</option>
+                <option value="oromo">Afaan Oromoo</option>
+                <option value="english">English</option>
+            </select>
+        </div>
+    </nav>
+
+    <div class="max-w-xl mx-auto p-6 mt-10">
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-lg space-y-4">
+            <h2 id="portalHeader" class="text-lg font-bold text-emerald-400 text-center"><i class="fa-solid fa-magnifying-glass mr-2"></i>Bu'aa Qormaata Keessan Ilaalaa</h2>
+            <p id="portalDesc" class="text-xs text-gray-400 text-center">Mana barumsaa, Kutaa/Daree fi ID kee sirriitti galchuun bu'aa qormaata kee dhuunfaa qofa argachuun download/print godhadhu.</p>
+
+            <div class="space-y-3 bg-gray-900 p-4 rounded border border-gray-700 text-sm">
+                <div>
+                    <label id="lblPortalSchool" class="block text-xs font-semibold mb-1">Maqaa Mana Barumsaa / School Name</label>
+                    <input type="text" id="portal_school" placeholder="Fkn: Mana Barumsaa Ol'aanaa Gota" class="w-full p-2 bg-gray-800 rounded border border-gray-700">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="lblPortalClass" class="block text-xs font-semibold mb-1">Kutaa / Daree (Class)</label>
+                        <input type="text" id="portal_class" placeholder="Fkn: 11C" class="w-full p-2 bg-gray-800 rounded border border-gray-700">
+                    </div>
+                    <div>
+                        <label id="lblPortalId" class="block text-xs font-semibold mb-1">ID Barataa (Student ID)</label>
+                        <input type="text" id="portal_id" placeholder="Fkn: 9021" class="w-full p-2 bg-gray-800 rounded border border-gray-700">
+                    </div>
+                </div>
+                <button onclick="searchStudentPortal()" id="btnSearch" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded transition flex justify-center items-center shadow">
+                    <i class="fa-solid fa-search mr-2"></i> Bu'aa Qormaataa Barbaadi
+                </button>
+            </div>
+
+            <!-- Student Result Display Box -->
+            <div id="portalResultContainer" class="hidden bg-gray-950 p-4 rounded border border-gray-800 space-y-3">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const portalTranslations = {
+            oromo: {
+                portalNavTitle: "Portal Bu'aa Qormaata Barattootaa",
+                portalHeader: "Bu'aa Qormaata Keessan Ilaalaa",
+                portalDesc: "Mana barumsaa, Kutaa/Daree fi ID kee sirriitti galchuun bu'aa qormaata kee dhuunfaa qofa argachuun download/print godhadhu.",
+                lblPortalSchool: "Maqaa Mana Barumsaa",
+                lblPortalClass: "Kutaa / Daree",
+                lblPortalId: "ID Barataa",
+                btnSearch: "Bu'aa Qormaataa Barbaadi"
+            },
+            english: {
+                portalNavTitle: "Student Result Portal",
+                portalHeader: "Check Your Exam Result",
+                portalDesc: "Enter your school name, class, and student ID to view and download your personal exam result.",
+                lblPortalSchool: "School Name",
+                lblPortalClass: "Class / Grade",
+                lblPortalId: "Student ID",
+                btnSearch: "Search Exam Result"
+            },
+            bilingual: {
+                portalNavTitle: "Portal Bu'aa Qormaata / Student Portal",
+                portalHeader: "Bu'aa Qormaata Keessan Ilaalaa / Check Result",
+                portalDesc: "Mana barumsaa, Kutaa fi ID kee galchuun bu'aa kee ilaali / Enter your details to view result.",
+                lblPortalSchool: "Maqaa Mana Barumsaa / School Name",
+                lblPortalClass: "Kutaa / Class",
+                lblPortalId: "ID Barataa / Student ID",
+                btnSearch: "Bu'aa Qormaataa Barbaadi / Search Result"
+            }
+        };
+
+        function changePortalLanguage() {
+            const lang = document.getElementById('portal_ui_lang').value;
+            const t = portalTranslations[lang];
+
+            for (const key in t) {
+                const el = document.getElementById(key);
+                if (el) {
+                    const icon = el.querySelector('i');
+                    if (icon) {
+                        el.innerHTML = '';
+                        el.appendChild(icon);
+                        el.append(' ' + t[key]);
+                    } else {
+                        el.innerText = t[key];
+                    }
+                }
+            }
+        }
+
+        async function searchStudentPortal() {
+            const school_name = document.getElementById('portal_school').value;
+            const grade_class = document.getElementById('portal_class').value;
+            const student_id = document.getElementById('portal_id').value;
+
+            if(!student_id || !school_name) {
+                alert("Maaloo Maqaa Mana Barumsaa fi ID Barataa guutaa!");
+                return;
+            }
+
+            const res = await fetch('/api/student-portal-search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ school_name, grade_class, student_id })
+            });
+            const data = await res.json();
+            const container = document.getElementById('portalResultContainer');
+            container.classList.remove('hidden');
+
+            if(data.found) {
+                const s = data.record;
+                let detailsHtml = '';
+                s.details.forEach(d => {
+                    const isCorrect = d.status.includes('Sirrii') || d.status.includes('Correct');
+                    const statCol = isCorrect ? 'text-emerald-400' : 'text-rose-400';
+                    detailsHtml += `
+                        <div class="flex justify-between text-xs p-1 border-b border-gray-800">
+                            <span>Gaaffii ${d.question}</span>
+                            <span class="${statCol}">Deebii: ${d.student_ans} (Sirrii: ${d.correct_ans}) — [${d.status}]</span>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = `
+                    <div class="border-b border-gray-700 pb-2 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-emerald-400 text-base">${s.name} (ID: ${s.id})</h3>
+                            <p class="text-xs text-gray-400">${s.school_name} | Daree: ${s.grade_class} | Barnoota: ${s.subject}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xl font-bold ${s.score >= 50 ? 'text-emerald-400' : 'text-rose-400'}">${s.score}%</span>
+                        </div>
+                    </div>
+                    <div class="max-h-48 overflow-y-auto space-y-1">
+                        ${detailsHtml}
+                    </div>
+                    <div class="pt-2 flex space-x-2">
+                        <button onclick="downloadStudentPDF(${JSON.stringify(s).replace(/"/g, '&quot;')})" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded text-xs shadow">
+                            <i class="fa-solid fa-download mr-1"></i> Result PDF Download
+                        </button>
+                        <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded text-xs shadow">
+                            <i class="fa-solid fa-print mr-1"></i> Print Result
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `<p class="text-rose-400 text-sm font-semibold text-center"><i class="fa-solid fa-triangle-exclamation mr-1"></i> ${data.message}</p>`;
+            }
+        }
+
+        async function downloadStudentPDF(student) {
+            const res = await fetch('/api/download-result-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student })
+            });
+            const data = await res.json();
+            window.location.href = data.download_url;
+        }
+    </script>
+</body>
+</html>

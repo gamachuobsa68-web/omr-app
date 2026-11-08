@@ -1,0 +1,195 @@
+[
+    {
+        "id": null,
+        "name": "Gamachu Obsa ",
+        "school_name": "Ambo University Special Secondary School",
+        "grade_class": "11",
+        "subject": "Herrega / Mathematics",
+        "question_type": "mcq4",
+        "score": 16,
+        "correct_count": 5,
+        "total_questions": 30,
+        "details": [
+            {
+                "question": "1",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "2",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "3",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "4",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "5",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "6",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "7",
+                "student_ans": "A",
+                "correct_ans": "D",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "8",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "9",
+                "student_ans": "A",
+                "correct_ans": "A",
+                "status": "Sirrii / Correct"
+            },
+            {
+                "question": "10",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "11",
+                "student_ans": "A",
+                "correct_ans": "A",
+                "status": "Sirrii / Correct"
+            },
+            {
+                "question": "12",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "13",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "14",
+                "student_ans": "A",
+                "correct_ans": "D",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "15",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "16",
+                "student_ans": "A",
+                "correct_ans": "A",
+                "status": "Sirrii / Correct"
+            },
+            {
+                "question": "17",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "18",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "19",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "20",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "21",
+                "student_ans": "A",
+                "correct_ans": "A",
+                "status": "Sirrii / Correct"
+            },
+            {
+                "question": "22",
+                "student_ans": "A",
+                "correct_ans": "A",
+                "status": "Sirrii / Correct"
+            },
+            {
+                "question": "23",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "24",
+                "student_ans": "A",
+                "correct_ans": "D",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "25",
+                "student_ans": "A",
+                "correct_ans": "D",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "26",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "27",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "28",
+                "student_ans": "A",
+                "correct_ans": "B",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "29",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            },
+            {
+                "question": "30",
+                "student_ans": "A",
+                "correct_ans": "C",
+                "status": "Dogoggora / Wrong"
+            }
+        ]
+    }
+]

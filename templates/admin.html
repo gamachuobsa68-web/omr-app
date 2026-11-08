@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="om">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin & Teacher OMR Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .bubble-correct { background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 2px solid #10b981; }
+        .bubble-wrong { background-color: rgba(239, 68, 68, 0.2); color: #f87171; border: 2px dashed #ef4444; }
+        .bubble-unclear { background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 2px dotted #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans">
+    
+    <nav class="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-50 flex justify-between items-center">
+        <h1 id="navTitle" class="text-lg font-bold text-indigo-400"><i class="fa-solid fa-chalkboard-user mr-2"></i>Dashboard Barsiisaa (Admin OMR)</h1>
+        <div class="flex items-center space-x-3">
+            <select id="ui_lang" onchange="changeUILanguage()" class="bg-gray-700 text-xs text-white p-1.5 rounded border border-gray-600">
+                <option value="bilingual">Bilingual (Afaan Oromoo / English)</option>
+                <option value="oromo">Afaan Oromoo</option>
+                <option value="english">English</option>
+            </select>
+            <a href="/portal" target="_blank" id="navPortalBtn" class="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded font-semibold text-xs text-white"><i class="fa-solid fa-user-graduate mr-1"></i> Portal Barataa</a>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-4 mt-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- SHEET GENERATOR PANEL -->
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-lg space-y-4">
+            <h2 id="genHeader" class="text-base font-bold text-emerald-400"><i class="fa-solid fa-file-lines mr-2"></i>1. Waraqaa Deebii Qopheessuu (Sheet Generator)</h2>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label id="lblPdfLang" class="block text-xs font-semibold mb-1">Filannoo Lughataa Waraqaa (PDF Language)</label>
+                    <select id="gen_lang" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                        <option value="bilingual" selected>English / Afaan Oromoo</option>
+                        <option value="oromo">Afaan Oromoo Only</option>
+                        <option value="english">English Only</option>
+                    </select>
+                </div>
+                <div>
+                    <label id="lblSchool" class="block text-xs font-semibold mb-1">Maqaa Mana Barumsaa</label>
+                    <input type="text" id="gen_school" value="MANA BARUMSAA OL'AANAA GOTA" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                </div>
+                <div>
+                    <label id="lblExamTitle" class="block text-xs font-semibold mb-1">Mata Duree Qormaataa</label>
+                    <input type="text" id="gen_title" value="QORMAATA GSA 1FFAA" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                </div>
+                <div>
+                    <label id="lblLogo" class="block text-xs font-semibold mb-1">Loogoo Mana Barumsaa (Logo Upload)</label>
+                    <input type="file" id="gen_logo" accept="image/*" class="w-full text-xs text-gray-400 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-indigo-600 file:text-white">
+                </div>
+                <div>
+                    <label id="lblSubject" class="block text-xs font-semibold mb-1">Gosa Barnootaa</label>
+                    <input type="text" id="gen_subject" value="Herrega" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label id="lblTotalQ" class="block text-xs font-semibold mb-1">Baay'ina Gaaffii</label>
+                        <input type="number" id="gen_total_q" value="20" min="1" max="100" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                    </div>
+                    <div>
+                        <label id="lblQType" class="block text-xs font-semibold mb-1">Gosa Qormaata</label>
+                        <select id="gen_q_type" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                            <option value="mcq4">MCQ (A-D)</option>
+                            <option value="mcq5">MCQ (A-E)</option>
+                            <option value="true_false">True / False</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="lblCols" class="block text-xs font-semibold mb-1">Columns</label>
+                        <select id="gen_columns" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                            <option value="1">1 Column</option>
+                            <option value="2" selected>2 Columns</option>
+                            <option value="3">3 Columns</option>
+                            <option value="4">4 Columns</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="generatePDF()" id="btnPrintPdf" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded transition flex justify-center items-center shadow">
+                    <i class="fa-solid fa-file-pdf mr-2"></i> Print / Download OMR Sheet PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- ADMIN SCANNER & ANSWER KEY PANEL -->
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-lg space-y-4">
+            <h2 id="scanHeader" class="text-base font-bold text-emerald-400"><i class="fa-solid fa-camera mr-2"></i>2. Strict Scanner & Answer Key</h2>
+            
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label id="lblScanSchool" class="block text-xs font-semibold mb-1">Maqaa Mana Barumsaa</label>
+                    <input type="text" id="school_name" value="MANA BARUMSAA OL'AANAA GOTA" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="lblScanTotalQ" class="block text-xs font-semibold mb-1">Baay'ina Gaaffii</label>
+                        <input type="number" id="total_q" value="20" min="1" max="100" onchange="renderDynamicFields()" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                    </div>
+                    <div>
+                        <label id="lblScanQType" class="block text-xs font-semibold mb-1">Gosa Gaaffii</label>
+                        <select id="question_type" onchange="renderDynamicFields()" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                            <option value="mcq4">MCQ (A-D)</option>
+                            <option value="mcq5">MCQ (A-E)</option>
+                            <option value="true_false">True / False</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label id="lblScanSubject" class="block text-xs font-semibold mb-1">Gosa Barnootaa</label>
+                    <input type="text" id="subject" value="Herrega" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="lblStudentName" class="block text-xs font-semibold mb-1">Maqaa Barataa</label>
+                        <input type="text" id="name" required placeholder="Fkn: Margaa" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                    </div>
+                    <div>
+                        <label id="lblStudentId" class="block text-xs font-semibold mb-1">ID Barataa</label>
+                        <input type="text" id="student_id" required placeholder="Fkn: 9021" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                    </div>
+                </div>
+                <div>
+                    <label id="lblClass" class="block text-xs font-semibold mb-1">Kutaa / Daree</label>
+                    <input type="text" id="grade_class" required placeholder="Fkn: 11C" class="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                </div>
+                <div>
+                    <label id="lblUpload" class="block text-xs font-semibold mb-1 text-amber-400"><i class="fa-solid fa-image mr-1"></i> Suuraa Waraqaa Scan (Camera/Upload)</label>
+                    <input type="file" id="omr_image" accept="image/*" capture="environment" class="w-full text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-emerald-600 file:text-white">
+                </div>
+
+                <hr class="border-gray-700">
+                <h3 id="lblAnswerKey" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-key mr-1"></i> Answer Key Input</h3>
+                <div id="dynamicFieldsContainer" class="space-y-2 max-h-36 overflow-y-auto p-2 bg-gray-900 rounded border border-gray-700">
+                </div>
+
+                <button onclick="submitExam()" id="btnGrade" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded transition flex justify-center items-center shadow">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Scan, Grade & Save
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DATABASE & RED PEN SIMULATOR FULL WIDTH -->
+    <div class="max-w-7xl mx-auto p-4">
+        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-lg space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 id="dbHeader" class="text-base font-bold text-amber-400"><i class="fa-solid fa-database mr-2"></i>Database Barattoota & Red Pen Simulator</h2>
+                <button onclick="fetchStudents()" id="btnRefresh" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs font-semibold">
+                    <i class="fa-solid fa-rotate mr-1"></i> Refresh List
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-700 text-gray-300 text-xs uppercase">
+                            <th class="p-3">ID</th>
+                            <th id="thName" class="p-3">Maqaa</th>
+                            <th id="thClass" class="p-3">Kutaa</th>
+                            <th id="thScore" class="p-3">Qabxii</th>
+                            <th id="thAction" class="p-3 text-center">Tarkaanfii</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable" class="text-sm divide-y divide-gray-700">
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="feedbackBox" class="bg-gray-900 p-4 rounded border border-gray-700 mt-4 hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 id="simHeader" class="font-bold text-indigo-400 flex items-center"><i class="fa-solid fa-pen-nib mr-2"></i>Red Pen Visual Simulator</h3>
+                    <div class="space-x-2">
+                        <button id="downloadResultBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-xs font-semibold">
+                            <i class="fa-solid fa-download mr-1"></i> Download PDF
+                        </button>
+                        <button onclick="window.print()" id="btnPrint" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-semibold">
+                            <i class="fa-solid fa-print mr-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div id="simulatorOverlay" class="p-3 bg-gray-950 rounded border border-gray-800 space-y-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            oromo: {
+                navTitle: "Dashboard Barsiisaa (Admin OMR)",
+                navPortalBtn: "Portal Barataa",
+                genHeader: "1. Waraqaa Deebii Qopheessuu (Sheet Generator)",
+                lblPdfLang: "Filannoo Lughataa Waraqaa",
+                lblSchool: "Maqaa Mana Barumsaa",
+                lblExamTitle: "Mata Duree Qormaataa",
+                lblLogo: "Loogoo Mana Barumsaa (Logo Upload)",
+                lblSubject: "Gosa Barnootaa",
+                lblTotalQ: "Baay'ina Gaaffii",
+                lblQType: "Gosa Qormaata",
+                lblCols: "Columns",
+                btnPrintPdf: "Print / Download OMR Sheet PDF",
+                scanHeader: "2. Strict Scanner & Answer Key",
+                lblScanSchool: "Maqaa Mana Barumsaa",
+                lblScanTotalQ: "Baay'ina Gaaffii",
+                lblScanQType: "Gosa Gaaffii",
+                lblScanSubject: "Gosa Barnootaa",
+                lblStudentName: "Maqaa Barataa",
+                lblStudentId: "ID Barataa",
+                lblClass: "Kutaa / Daree",
+                lblUpload: "Suuraa Waraqaa Scan (Camera/Upload)",
+                lblAnswerKey: "Answer Key Input",
+                btnGrade: "Scan, Grade & Save",
+                dbHeader: "Database Barattoota & Red Pen Simulator",
+                btnRefresh: "Refresh List",
+                thName: "Maqaa",
+                thClass: "Kutaa",
+                thScore: "Qabxii",
+                thAction: "Tarkaanfii",
+                simHeader: "Red Pen Visual Simulator",
+                btnPrint: "Print"
+            },
+            english: {
+                navTitle: "Teacher Dashboard (Admin OMR)",
+                navPortalBtn: "Student Portal",
+                genHeader: "1. Custom Answer Sheet Generator",
+                lblPdfLang: "PDF Language Mode",
+                lblSchool: "School Name",
+                lblExamTitle: "Exam Title",
+                lblLogo: "School Logo (Optional)",
+                lblSubject: "Subject",
+                lblTotalQ: "Total Questions",
+                lblQType: "Question Type",
+                lblCols: "Columns",
+                btnPrintPdf: "Print / Download OMR Sheet PDF",
+                scanHeader: "2. Strict Scanner & Answer Key",
+                lblScanSchool: "School Name",
+                lblScanTotalQ: "Total Questions",
+                lblScanQType: "Question Type",
+                lblScanSubject: "Subject",
+                lblStudentName: "Student Name",
+                lblStudentId: "Student ID",
+                lblClass: "Class / Grade",
+                lblUpload: "OMR Sheet Image (Camera/Upload)",
+                lblAnswerKey: "Answer Key Input",
+                btnGrade: "Scan, Grade & Save",
+                dbHeader: "Student Database & Red Pen Simulator",
+                btnRefresh: "Refresh List",
+                thName: "Name",
+                thClass: "Class",
+                thScore: "Score",
+                thAction: "Action",
+                simHeader: "Red Pen Visual Simulator",
+                btnPrint: "Print"
+            },
+            bilingual: {
+                navTitle: "Dashboard Barsiisaa / Teacher Dashboard",
+                navPortalBtn: "Portal Barataa / Student Portal",
+                genHeader: "1. Waraqaa Deebii Qopheessuu / Sheet Generator",
+                lblPdfLang: "Filannoo Lughataa / PDF Language",
+                lblSchool: "Maqaa Mana Barumsaa / School Name",
+                lblExamTitle: "Mata Duree Qormaataa / Exam Title",
+                lblLogo: "Loogoo Mana Barumsaa / School Logo",
+                lblSubject: "Gosa Barnootaa / Subject",
+                lblTotalQ: "Baay'ina Gaaffii / Total Q",
+                lblQType: "Gosa Qormaata / Question Type",
+                lblCols: "Columns",
+                btnPrintPdf: "Print / Download OMR Sheet PDF",
+                scanHeader: "2. Strict Scanner & Answer Key",
+                lblScanSchool: "Maqaa Mana Barumsaa / School Name",
+                lblScanTotalQ: "Baay'ina Gaaffii / Total Q",
+                lblScanQType: "Gosa Gaaffii / Q-Type",
+                lblScanSubject: "Gosa Barnootaa / Subject",
+                lblStudentName: "Maqaa Barataa / Student Name",
+                lblStudentId: "ID Barataa / Student ID",
+                lblClass: "Kutaa / Class",
+                lblUpload: "Suuraa Waraqaa Scan / OMR Image",
+                lblAnswerKey: "Answer Key Input",
+                btnGrade: "Scan, Grade & Save",
+                dbHeader: "Database Barattoota & Red Pen Simulator",
+                btnRefresh: "Refresh List",
+                thName: "Maqaa / Name",
+                thClass: "Kutaa / Class",
+                thScore: "Qabxii / Score",
+                thAction: "Tarkaanfii / Action",
+                simHeader: "Red Pen Visual Simulator",
+                btnPrint: "Print"
+            }
+        };
+
+        function changeUILanguage() {
+            const lang = document.getElementById('ui_lang').value;
+            const t = translations[lang];
+            
+            for (const key in t) {
+                const el = document.getElementById(key);
+                if (el) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                        // placeholder or value if needed
+                    } else {
+                        // preserve icons if any
+                        const icon = el.querySelector('i');
+                        if (icon) {
+                            el.innerHTML = '';
+                            el.appendChild(icon);
+                            el.append(' ' + t[key]);
+                        } else {
+                            el.innerText = t[key];
+                        }
+                    }
+                }
+            }
+        }
+
+        function renderDynamicFields() {
+            const total = parseInt(document.getElementById('total_q').value) || 20;
+            const qType = document.getElementById('question_type').value;
+            const container = document.getElementById('dynamicFieldsContainer');
+            container.innerHTML = '';
+
+            for(let i = 1; i <= total; i++) {
+                let optionsHtml = '';
+                if(qType === 'true_false') {
+                    optionsHtml = `<option value="T">T</option><option value="F">F</option>`;
+                } else if(qType === 'mcq5') {
+                    optionsHtml = `<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>`;
+                } else {
+                    optionsHtml = `<option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>`;
+                }
+
+                container.innerHTML += `
+                    <div class="flex items-center justify-between text-xs bg-gray-800 p-2 rounded">
+                        <span class="font-bold w-10 text-gray-300">Q${i}:</span>
+                        <div class="flex space-x-2">
+                            <label class="text-amber-400">Key: <select id="ak_${i}" class="bg-gray-700 p-1 rounded text-white">${optionsHtml}</select></label>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function fetchStudents() {
+            const res = await fetch('/api/students');
+            const data = await res.json();
+            const table = document.getElementById('studentTable');
+            table.innerHTML = '';
+            
+            if(data.length === 0) {
+                table.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Galmeen barataa tokkoyyuu hin jiru. / No records found.</td></tr>`;
+                return;
+            }
+
+            data.forEach(s => {
+                table.innerHTML += `
+                    <tr class="hover:bg-gray-750" id="row_${s.id}">
+                        <td class="p-3 font-mono">${s.id}</td>
+                        <td class="p-3 font-semibold">${s.name}</td>
+                        <td class="p-3">${s.grade_class}</td>
+                        <td class="p-3"><span class="px-2 py-1 rounded font-bold ${s.score >= 50 ? 'bg-emerald-900 text-emerald-300' : 'bg-rose-900 text-rose-300'}">${s.score}%</span></td>
+                        <td class="p-3 text-center space-x-1">
+                            <button onclick='showSimulatorDetails(${JSON.stringify(s)})' class="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-xs"><i class="fa-solid fa-eye"></i></button>
+                            <button onclick="downloadStudentPDF(${JSON.stringify(s).replace(/"/g, '&quot;')})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-xs"><i class="fa-solid fa-download"></i></button>
+                            <button onclick="deleteStudent('${s.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function submitExam() {
+            const total = parseInt(document.getElementById('total_q').value) || 20;
+            const qType = document.getElementById('question_type').value;
+            const school_name = document.getElementById('school_name').value;
+            const name = document.getElementById('name').value;
+            const student_id = document.getElementById('student_id').value;
+            const grade_class = document.getElementById('grade_class').value;
+            const subject = document.getElementById('subject').value;
+            const imageFile = document.getElementById('omr_image').files[0];
+
+            if(!name || !student_id) {
+                alert("Maaloo Maqaa fi ID barataa guutaa! / Please fill name and ID!");
+                return;
+            }
+
+            let answer_key = {};
+            for(let i = 1; i <= total; i++) {
+                answer_key[i] = document.getElementById(`ak_${i}`).value;
+            }
+
+            const formData = new FormData();
+            formData.append('school_name', school_name);
+            formData.append('name', name);
+            formData.append('student_id', student_id);
+            formData.append('grade_class', grade_class);
+            formData.append('subject', subject);
+            formData.append('question_type', qType);
+            formData.append('answer_key', JSON.stringify(answer_key));
+
+            if(imageFile) {
+                formData.append('omr_image', imageFile);
+            } else {
+                alert("Maaloo suuraa waraqaa deebii barataa (OMR Image) filadhaa!");
+                return;
+            }
+
+            const res = await fetch('/api/grade-scan', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await res.json();
+            if(!result.success) {
+                alert("Dogoggora Scan: " + result.message);
+                return;
+            }
+
+            alert(result.message);
+            fetchStudents();
+            showSimulatorDetails(result.record);
+        }
+
+        function showSimulatorDetails(student) {
+            const box = document.getElementById('feedbackBox');
+            const overlay = document.getElementById('simulatorOverlay');
+            box.classList.remove('hidden');
+
+            overlay.innerHTML = `
+                <div class="mb-2 text-xs text-gray-300">
+                    <p class="font-bold text-indigo-300">Barataa: ${student.name} | School: ${student.school_name} | Qabxii: ${student.score}% (${student.correct_count}/${student.total_questions})</p>
+                </div>
+            `;
+
+            student.details.forEach(d => {
+                let badgeClass = 'bubble-correct';
+                let icon = '<i class="fa-solid fa-check mr-1"></i>';
+                let textCol = 'text-emerald-400';
+
+                if(d.status.includes('Dogoggora') || d.status.includes('Wrong')) {
+                    badgeClass = 'bubble-wrong';
+                    icon = '<i class="fa-solid fa-pen-nib text-red-400 mr-1"></i>';
+                    textCol = 'text-red-400 font-extrabold underline';
+                } else if(d.status.includes('Unclear') || d.status.includes('Sirreeffamuu')) {
+                    badgeClass = 'bubble-unclear';
+                    icon = '<i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i>';
+                    textCol = 'text-amber-400 font-bold';
+                }
+
+                overlay.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-800 text-xs">
+                        <span class="font-bold text-gray-300">Q${d.question}</span>
+                        <div class="px-2 py-1 rounded font-bold ${badgeClass}">
+                            ${icon} Scan: ${d.student_ans} (Key: ${d.correct_ans}) — <span class="${textCol}">${d.status}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('downloadResultBtn').onclick = () => downloadStudentPDF(student);
+        }
+
+        async function downloadStudentPDF(student) {
+            const res = await fetch('/api/download-result-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student })
+            });
+            const data = await res.json();
+            window.location.href = data.download_url;
+        }
+
+        async function deleteStudent(id) {
+            if(confirm('Barataa kana galmee irraa haquu ni barbaadduu? / Delete student record?')) {
+                const res = await fetch(`/api/students?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+                const data = await res.json();
+                if(data.success) {
+                    fetchStudents();
+                } else {
+                    alert("Haquu irratti dogoggorri uumameera.");
+                }
+            }
+        }
+
+        async function generatePDF() {
+            const lang_mode = document.getElementById('gen_lang').value;
+            const school_name = document.getElementById('gen_school').value;
+            const exam_title = document.getElementById('gen_title').value;
+            const subject = document.getElementById('gen_subject').value;
+            const total_questions = document.getElementById('gen_total_q').value;
+            const question_type = document.getElementById('gen_q_type').value;
+            const columns = document.getElementById('gen_columns').value;
+            const logoFile = document.getElementById('gen_logo').files[0];
+
+            const formData = new FormData();
+            formData.append('lang_mode', lang_mode);
+            formData.append('school_name', school_name);
+            formData.append('exam_title', exam_title);
+            formData.append('subject', subject);
+            formData.append('total_questions', total_questions);
+            formData.append('question_type', question_type);
+            formData.append('columns', columns);
+
+            if(logoFile) {
+                formData.append('logo_file', logoFile);
+            }
+
+            const res = await fetch('/api/generate-pdf', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            window.location.href = data.download_url;
+        }
+
+        renderDynamicFields();
+        fetchStudents();
+    </script>
+</body>
+</html>
