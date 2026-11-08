@@ -40,20 +40,20 @@ def validate_and_process_omr(image_path, total_questions, q_type):
 
         binary = img_np < 120
         options = ['A', 'B', 'C', 'D', 'E'] if q_type == 'mcq5' else (['T', 'F'] if q_type == 'true_false' else ['A', 'B', 'C', 'D'])
-        
+
         scanned_answers = {}
         row_height = h / total_questions
 
         for q in range(1, total_questions + 1):
             row_data = binary[int((q-1)*row_height):int(q*row_height), :]
             col_width = w / len(options)
-            
+
             dark_counts = []
             for idx, opt in enumerate(options):
                 col_box = row_data[:, int(idx*col_width):int((idx+1)*col_width)]
                 black_count = np.sum(col_box)
                 dark_counts.append((black_count, opt))
-            
+
             dark_counts.sort(key=lambda x: x[0], reverse=True)
             highest, opt_high = dark_counts[0]
             second_high, _ = dark_counts[1]
@@ -86,7 +86,7 @@ def grade_scan():
     grade_class = request.form.get('grade_class', '').strip()
     subject = request.form.get('subject', '').strip()
     question_type = request.form.get('question_type', 'mcq4')
-    
+
     answer_key_raw = request.form.get('answer_key', '{}')
     answer_key = json.loads(answer_key_raw)
     total_questions = len(answer_key)
@@ -114,7 +114,7 @@ def grade_scan():
 
     for q, correct_ans in answer_key.items():
         student_ans = student_answers.get(str(q), "Hin Deebisne")
-        
+
         if student_ans == "Iddoo-Hin-Ifne (Unclear)":
             status = "Sirreeffamuu Qaba (Unclear Mark)"
             is_correct = False
@@ -126,7 +126,7 @@ def grade_scan():
             if is_correct:
                 correct_count += 1
             status = "Sirrii / Correct" if is_correct else "Dogoggora / Wrong"
-        
+
         details.append({
             "question": q,
             "student_ans": student_ans,
@@ -150,7 +150,6 @@ def grade_scan():
     }
 
     db = load_db()
-    # Remove any existing record with the exact same ID to prevent duplication bugs
     db = [s for s in db if str(s.get('id')).strip() != str(student_id).strip()]
     db.append(student_record)
     save_db(db)
@@ -166,10 +165,8 @@ def manage_students():
         student_id = request.args.get('id')
         if not student_id:
             return jsonify({"success": False, "message": "ID barataa hin argamne!"})
-        
-        # Filter database strictly by converting both to string and stripping whitespace
+
         new_db = [s for s in db if str(s.get('id', '')).strip() != str(student_id).strip()]
-        
         save_db(new_db)
         return jsonify({"success": True, "message": "Galmeen barataa milkaa'inaan haqameera!"})
 
@@ -186,7 +183,7 @@ def student_portal_search():
            s_school in str(s.get('school_name', '')).strip().lower() and \
            s_class in str(s.get('grade_class', '')).strip().lower():
             return jsonify({"found": True, "record": s})
-            
+
     return jsonify({"found": False, "message": "Odeeffannoon Barataa Hin Argamne!"})
 
 @app.route('/api/generate-pdf', methods=['POST'])
@@ -208,7 +205,7 @@ def generate_pdf():
 
     pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], 'OMR_Answer_Sheet.pdf')
     c = canvas.Canvas(pdf_path, pagesize=letter)
-    
+
     c.rect(25, 765, 15, 15, fill=1)
     c.rect(572, 765, 15, 15, fill=1)
     c.rect(25, 30, 15, 15, fill=1)
@@ -282,7 +279,7 @@ def generate_result_pdf():
 
     c.setFont("Helvetica-Bold", 14)
     c.drawCentredString(300, 750, "BU'AA QORMAATAA BARATAA / STUDENT RESULT REPORT")
-    
+
     c.setFont("Helvetica", 10)
     c.drawString(50, 715, f"Mana Barumsaa: {student.get('school_name')}")
     c.drawString(350, 715, f"ID: {student.get('id')}")
@@ -322,4 +319,5 @@ def download_result_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
